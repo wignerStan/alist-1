@@ -6,7 +6,7 @@ before:
 
 builds:
   - id: alist
-    main: ./cmd/alist
+    main: .
     binary: alist
     env:
       - CGO_ENABLED=0
