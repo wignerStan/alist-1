@@ -1,0 +1,180 @@
+project_name: alist
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+    - go generate ./...
+
+builds:
+  - id: alist
+    main: ./cmd/alist
+    binary: alist
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+      - freebsd
+      - android
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+      - loong64
+      - riscv64
+    goarm:
+      - "6"
+      - "7"
+    ignore:
+      - goos: darwin
+        goarch: "386"
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w -X main.Version={{.Version}} -X main.Revision={{.Commit}}
+    flags:
+      - -trimpath
+
+archives:
+  - id: default
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+      - README_zh-CN.md
+    strip_parent_binary_folder: false
+
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - '^ci:'
+      - '^style:'
+      - '^refactor:'
+
+release:
+  github:
+    owner: wignerStan
+    name: alist
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Alist {{ .Tag }} Release (Personal Fork)
+
+    Full changelog: https://github.com/wignerStan/alist/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    ⚠️ Note: This is a personal fork for automated builds. Use [AlistGo/alist](https://github.com/AlistGo/alist) for official releases.
+
+brews:
+  - repository:
+      owner: wignerStan
+      name: alist
+    homepage: https://alist.nn.ci
+    description: "A file list/WebDAV program that supports multiple storages (personal fork)"
+    license: MIT
+    skip_upload: auto
+    directory: Formula
+    commit_msg_template: "Bump alist to {{ .Version }}"
+    commit_author:
+      name: alist-bot
+      email: bot@alist.nn.ci
+    ids:
+      - alist
+    folder: Formula
+    caveats: |
+      To start alist:
+        alist server
+
+      Configuration file is located at:
+        ~/.config/alist/config.json
+    dependencies:
+      - name: go
+        type: optional
+
+nfpm:
+  - id: alist-cli
+    package_name: alist-cli
+    file_name_template: "{{ .ProjectName }}_cli_{{ .Os }}_{{ .Arch }}"
+    vendor: wignerStan
+    homepage: https://alist.nn.ci
+    description: "Alist command line interface for managing files and storage (personal fork)"
+    license: MIT
+    maintainer: wignerStan <noreply@github.com>
+    bindir: /usr/local/bin
+    section: utils
+    priority: optional
+    contents:
+      - src: ./LICENSE
+        dst: /usr/share/doc/alist-cli/LICENSE
+        file_info:
+          mode: 0644
+      - src: ./README.md
+        dst: /usr/share/doc/alist-cli/README.md
+        file_info:
+          mode: 0644
+    formats:
+      - deb
+      - rpm
+      - apk
+      - archlinux
+    recommends:
+      - ca-certificates
+
+  - id: alist
+    package_name: alist
+    file_name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    vendor: wignerStan
+    homepage: https://alist.nn.ci
+    description: "A file list/WebDAV program that supports multiple storages (personal fork)"
+    license: MIT
+    maintainer: wignerStan <noreply@github.com>
+    bindir: /usr/local/bin
+    section: net
+    priority: optional
+    contents:
+      - src: ./LICENSE
+        dst: /usr/share/doc/alist/LICENSE
+        file_info:
+          mode: 0644
+      - src: ./README.md
+        dst: /usr/share/doc/alist/README.md
+        file_info:
+          mode: 0644
+      - src: ./README_zh-CN.md
+        dst: /usr/share/doc/alist/README_zh-CN.md
+        file_info:
+          mode: 0644
+    formats:
+      - deb
+      - rpm
+      - apk
+      - archlinux
+    recommends:
+      - ca-certificates
+
+source:
+  enabled: true
+
+sboms:
+  - id: source
+    documents:
+      - "{{ .ProjectName }}_{{ .Version }}_sbom.spdx.json"
+    artifacts: source
+    attestations: true
