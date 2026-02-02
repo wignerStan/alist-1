@@ -108,7 +108,7 @@ brews:
       - name: go
         type: optional
 
-nfpm:
+nfpms:
   - id: alist-cli
     package_name: alist-cli
     file_name_template: "{{ .ProjectName }}_cli_{{ .Os }}_{{ .Arch }}"
@@ -177,4 +177,3 @@ sboms:
     documents:
       - "{{ .ProjectName }}_{{ .Version }}_sbom.spdx.json"
     artifacts: source
-    attestations: true
