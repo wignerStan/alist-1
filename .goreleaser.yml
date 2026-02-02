@@ -3,7 +3,6 @@ project_name: alist
 before:
   hooks:
     - go mod tidy
-    - go generate ./...
 
 builds:
   - id: alist
